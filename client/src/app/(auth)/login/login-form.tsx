@@ -73,7 +73,7 @@ export default function LoginForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 " noValidate>
                 <FormField
                     control={form.control}
                     name="email"

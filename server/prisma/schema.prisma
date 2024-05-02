@@ -14,21 +14,24 @@ datasource db {
 }
 
 model User {
-  id Int @default(autoincrement()) @id
-  email String @unique
-  password String 
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  password  String
+  onboarding Boolean   @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   profile Profile?
 }
 
 model Profile {
-  firstName String
-  lastName String
-  address String
-  phoneNumber String @unique
-  yob DateTime
-  avatar String
-  user User @relation(fields: [userId], references: [id])
-  userId Int @unique
+  id        Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  address     String
+  phoneNumber String   @unique
+  yob         DateTime
+  avatar      String
+  user        User?    @relation(fields: [userId], references: [id])
+  userId      Int?     @unique
 }
+

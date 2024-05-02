@@ -1,8 +1,9 @@
 /* eslint-disable prettier/prettier */
-import { Prisma, User } from '@prisma/client';
+import { User } from '@prisma/client';
 import { PrismaService } from './../prisma/prisma.service';
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt'
+import { CreateUserDto } from './signUp-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -13,7 +14,7 @@ export class UsersService {
         return this.prisma.user.findMany()
     }
 
-    async createUser(data: Prisma.UserCreateInput): Promise<User> {
+    async createUser(data: CreateUserDto): Promise<User> {
         const saltOrRounds = 10;
         const password = await bcrypt.hash(data.password, saltOrRounds)
 

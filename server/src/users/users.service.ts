@@ -16,6 +16,14 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { email: email } });
   }
 
+  async findById(id: number) {
+    return this.prisma.user.findUnique({ where: { id: id } });
+  }
+
+  async findUser(payload: Prisma.UserWhereUniqueInput) {
+    return this.prisma.user.findUnique({ where: payload });
+  }
+
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     const saltOrRounds = 10;
     const password = await bcrypt.hash(data.password, saltOrRounds);

@@ -2,6 +2,8 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
+import { Response } from 'express';
+import { Prisma } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -20,11 +22,20 @@ export class AuthService {
     return result;
   }
 
-  async login(user: any) {
-    const payload = { username: user.username, sub: user.userId };
-
-    return {
-      access_token: this.jwtService.sign(payload),
+  async login(user: Prisma.UserWhereUniqueInput, response: Response) {
+    const payload = {
+      email: user.email,
+      sub: user.id,
+      onboarding: user.onboarding,
     };
+    const access_token = await this.jwtService.sign(payload);
+
+    const expires = new Date(new Date().getTime() + 3600 * 1000);
+    response.cookie('Authentication', access_token, {
+      expires: expires,
+      httpOnly: true,
+    });
+
+    return user;
   }
 }

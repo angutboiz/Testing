@@ -4,6 +4,7 @@ import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from './jwt-auth.guards';
 
+
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
@@ -13,7 +14,6 @@ export class AuthController {
   async login(@Request() req, @Res({ passthrough: true }) response: Response) {
     return this.authService.login(req.user, response);
   }
-
   @UseGuards(JwtAuthGuard)
   @Get('profile')
   getProfile(@Request() req) {

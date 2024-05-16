@@ -1,19 +1,22 @@
-import { Body, ConflictException, Controller, Get, Post } from '@nestjs/common';
+import { Body, Controller, Delete, Post, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
+import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { CurrentUser } from './user.decorator';
+import { User } from '@prisma/client';
+import { UserActive } from './guards/user-active.guard';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Get()
-  async findAllUsers() {
-    return await this.usersService.findAllUsers();
+  @UseGuards(JwtAuthGuard, UserActive)
+  @Delete()
+  async deActiveUser(@CurrentUser() user: User) {
+    return await this.usersService.deleteUser(user.id);
   }
 
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
-    const user = await this.usersService.findFirst(createUserDto);
-    if (user) throw new ConflictException('The user is already exists!');
     const newUser = await this.usersService.createUser(createUserDto);
     return newUser;
   }

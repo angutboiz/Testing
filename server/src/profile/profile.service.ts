@@ -1,20 +1,28 @@
-import { ConflictException, Injectable } from '@nestjs/common';
-import { Profile } from '@prisma/client';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import { Prisma, Profile } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProfileDto } from './dto/createProfile.dto';
+import { UpdateProfileDto } from './dto/updateProfile.dto';
 
 @Injectable()
 export class ProfileService {
   constructor(private readonly prisma: PrismaService) {}
 
+  /**
+   * Get current user's profile
+   * @param userId
+   * @returns
+   */
   async getUserProfile(userId: number): Promise<Profile> {
-    return await this.prisma.profile.findUnique({ where: { userId: userId } });
-  }
-
-  private async userHasProfile(userId: number) {
-    const isUserHasProfile = await this.getUserProfile(userId);
-    if (isUserHasProfile)
-      throw new ConflictException('User already has a profile');
+    const profile = await this.prisma.profile.findUnique({
+      where: { userId: userId },
+    });
+    if (!profile) throw new NotFoundException("Not found user's profile");
+    return profile;
   }
 
   private async validatePhoneNumber(phoneNumber: string) {
@@ -24,16 +32,60 @@ export class ProfileService {
     if (phoneUsed) throw new ConflictException('Phone number already registed');
   }
 
+  /**
+   * Create user profile
+   * If user onboarding -> 403 Forbidden
+   * If phoneNumber is exists -> 400 Bad Request
+   * @param userId
+   * @param createProfileDto
+   * @returns Profile
+   */
   async createProfile(
     userId: number,
     createProfileDto: CreateProfileDto,
   ): Promise<Profile> {
-    await this.userHasProfile(userId);
     await this.validatePhoneNumber(createProfileDto.phoneNumber);
 
     const birthday = new Date(createProfileDto.birthday);
-    return await this.prisma.profile.create({
+    const profile = await this.prisma.profile.create({
       data: { ...createProfileDto, userId: userId, birthday: birthday },
+    });
+    // update user's onboarding status
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { onboarding: true },
+    });
+    return profile;
+  }
+
+  /**
+   * Update user profile
+   * If phoneNumber is exists -> 400 Bad Request
+   * @param userId
+   * @param updateProfileDto
+   * @returns Profile
+   */
+  async updateProfile(
+    userId: number,
+    updateProfileDto: UpdateProfileDto,
+  ): Promise<Profile> {
+    const data: Prisma.ProfileUpdateInput = updateProfileDto;
+
+    // Validate user's profile and phone number
+    await this.getUserProfile(userId);
+
+    if (updateProfileDto.phoneNumber) {
+      await this.validatePhoneNumber(updateProfileDto.phoneNumber);
+    }
+    if (updateProfileDto.birthday) {
+      // Format birthday string -> ISO 8601 Datetime
+      const birthday = new Date(updateProfileDto.birthday);
+      data.birthday = birthday;
+    }
+
+    return await this.prisma.profile.update({
+      where: { userId: userId },
+      data: data,
     });
   }
 }

@@ -20,8 +20,16 @@ export class UsersService {
     return this.prisma.user.findUnique({ where: { id: id } });
   }
 
-  async findUser(payload: Prisma.UserWhereUniqueInput) {
-    return this.prisma.user.findUnique({ where: payload });
+  async findUser(query: Prisma.UserWhereUniqueInput) {
+    return this.prisma.user.findUnique({ where: query });
+  }
+
+  async findFirst(query: Prisma.UserWhereUniqueInput) {
+    const { username, email } = query;
+
+    return this.prisma.user.findFirst({
+      where: { OR: [{ email }, { username }] },
+    });
   }
 
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
@@ -29,6 +37,7 @@ export class UsersService {
     const password = await bcrypt.hash(data.password, saltOrRounds);
 
     const newUser = {
+      username: data.username,
       email: data.email,
       password,
     };

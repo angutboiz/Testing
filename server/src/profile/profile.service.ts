@@ -34,6 +34,8 @@ export class ProfileService {
     const birthday = new Date(createProfileDto.birthday);
     return await this.prisma.profile.create({
       data: { ...createProfileDto, userId: userId, birthday: birthday },
+    return await this.prisma.profile.create({
+      data: { ...createProfileDto, userId: userId },
     });
   }
 }

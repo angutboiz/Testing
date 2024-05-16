@@ -33,4 +33,7 @@ export class CreateProfileDto {
   @IsOptional()
   @IsString()
   avatar: string;
+
+  @IsString()
+  userId: number;
 }

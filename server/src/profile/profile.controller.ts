@@ -42,5 +42,11 @@ export class ProfileController {
       avatar: avatar.path,
     };
     return await this.profileService.createProfile(user.id, formattedData);
+
+  async createUserProfile(
+    @Body() createProfileDto: CreateProfileDto,
+    @CurrentUser() user: User,
+  ): Promise<Profile> {
+    return await this.profileService.createProfile(user.id, createProfileDto);
   }
 }

@@ -3,6 +3,7 @@ import {
   IsNotEmpty,
   IsPhoneNumber,
   IsDateString,
+  IsOptional,
 } from 'class-validator';
 
 export class CreateProfileDto {
@@ -15,6 +16,12 @@ export class CreateProfileDto {
   lastName: string;
 
   @IsString()
+  city: string;
+
+  @IsString()
+  province: string;
+
+  @IsString()
   address: string;
 
   @IsPhoneNumber('VN')
@@ -23,6 +30,7 @@ export class CreateProfileDto {
   @IsDateString()
   birthday: Date;
 
+  @IsOptional()
   @IsString()
   avatar: string;
 

@@ -12,7 +12,8 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
   async validateUser(email: string, pass: string) {
-    const user = await this.usersService.findOne(email);
+    // Find user by email or username
+    const user = await this.usersService.findUser({ email: email });
     if (!user) throw new BadRequestException('Invalid credentials');
 
     const isMatch = await bcrypt.compare(pass, user.password);

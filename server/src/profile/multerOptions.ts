@@ -6,7 +6,7 @@ import { MulterOptions } from '@nestjs/platform-express/multer/interfaces/multer
 
 // Multer configuration
 export const multerConfig = {
-  dest: 'uploads/',
+  dest: process.env.UPLOAD_DESTINATION,
 };
 
 // Multer upload options

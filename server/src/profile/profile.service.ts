@@ -1,5 +1,5 @@
 import { ConflictException, Injectable } from '@nestjs/common';
-import { Prisma, Profile } from '@prisma/client';
+import { Profile } from '@prisma/client';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateProfileDto } from './dto/createProfile.dto';
 
@@ -26,7 +26,7 @@ export class ProfileService {
 
   async createProfile(
     userId: number,
-    createProfileDto: Prisma.ProfileUncheckedCreateInput,
+    createProfileDto: CreateProfileDto,
   ): Promise<Profile> {
     await this.userHasProfile(userId);
     await this.validatePhoneNumber(createProfileDto.phoneNumber);
@@ -34,8 +34,6 @@ export class ProfileService {
     const birthday = new Date(createProfileDto.birthday);
     return await this.prisma.profile.create({
       data: { ...createProfileDto, userId: userId, birthday: birthday },
-    return await this.prisma.profile.create({
-      data: { ...createProfileDto, userId: userId },
     });
   }
 }

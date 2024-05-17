@@ -3,11 +3,16 @@ import {
   IsNotEmpty,
   IsString,
   IsStrongPassword,
+  Matches,
+  MinLength,
 } from 'class-validator';
 
 export class CreateUserDto {
   @IsString()
-  @IsNotEmpty()
+  @MinLength(6)
+  @Matches(/^[a-z0-9_]+$/g, {
+    message: 'Username must not contains spaces, uppercase or symbols',
+  })
   username: string;
 
   @IsEmail()

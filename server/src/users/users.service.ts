@@ -36,11 +36,10 @@ export class UsersService {
    */
   async createUser(data: Prisma.UserCreateInput): Promise<User> {
     // Format - lower and remove all spaces
-    const formatUsername = data.username.toLowerCase().replace(/ /g, '');
 
     // Check if unique user
     const query = {
-      username: formatUsername,
+      username: data.username,
       email: data.email,
     };
     const user = await this.findFirst(query);
@@ -50,7 +49,7 @@ export class UsersService {
     const password = await bcrypt.hash(data.password, saltOrRounds);
 
     const newUser = {
-      username: formatUsername,
+      username: data.username,
       email: data.email,
       password,
     };

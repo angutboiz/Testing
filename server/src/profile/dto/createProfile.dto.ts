@@ -4,24 +4,28 @@ import {
   IsPhoneNumber,
   IsDateString,
   IsOptional,
+  MinLength,
 } from 'class-validator';
 
 export class CreateProfileDto {
   @IsString()
-  @IsNotEmpty()
+  @MinLength(3)
   firstName: string;
 
   @IsString()
-  @IsNotEmpty()
+  @MinLength(3)
   lastName: string;
 
   @IsString()
+  @IsNotEmpty()
   city: string;
 
   @IsString()
+  @IsNotEmpty()
   province: string;
 
   @IsString()
+  @IsNotEmpty()
   address: string;
 
   @IsPhoneNumber('VN')

@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_DB: poll_db
+      POSTGRES_USER: poll_user
+      POSTGRES_PASSWORD: poll_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  app:
+    image: minhnghia12305/testing:latest
+    depends_on:
+      - postgres
+    env_file:
+      - .env
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:

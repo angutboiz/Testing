@@ -1,20 +1,20 @@
 import {
   IsString,
-  IsNotEmpty,
   IsPhoneNumber,
   IsDateString,
   IsOptional,
+  MinLength,
 } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
+  @MinLength(6)
   firstName: string;
 
   @IsOptional()
   @IsString()
-  @IsNotEmpty()
+  @MinLength(6)
   lastName: string;
 
   @IsOptional()

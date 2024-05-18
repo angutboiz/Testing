@@ -14,7 +14,6 @@ export class UserActive implements CanActivate {
   ): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
     const user: User = request.user;
-    console.log(user);
     if (!user.active) {
       throw new ForbiddenException('Account has been deactivated!');
     }

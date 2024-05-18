@@ -69,4 +69,9 @@ export class UsersService {
     });
     if (user) return { msg: 'User has been deleted.' };
   }
+
+  async getCurrentUser(user: User) {
+    const { password, ...data } = user;
+    return { success: true, data: data };
+  }
 }

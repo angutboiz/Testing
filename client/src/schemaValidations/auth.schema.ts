@@ -9,7 +9,7 @@ const isValidAge = (yearString: string) => {
 
 export const RegisterBody = z
     .object({
-        name: z.string().trim().min(5, "Tên tài khoản phải trên 5 kí tự").max(256),
+        name: z.string().trim().min(5, "Tên tài khoản phải trên 5 kí tự").regex(/^\S*$/, "Tên tài khoản không được chứa khoảng trắng").max(256, "Tên tài khoản không được vượt quá 256 ký tự"),
         email: z
             .string()
             .min(5, "Email phải có ít nhất 5 ký tự")

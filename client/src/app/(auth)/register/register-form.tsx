@@ -10,10 +10,13 @@ import { Input } from "@/components/ui/input";
 import { RegisterBody, RegisterBodyType } from "@/schemaValidations/auth.schema";
 import { Cagliostro } from "next/font/google";
 import envConfig from "@/config";
-
+import { useToast } from "@/components/ui/use-toast";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-
+import { useRouter } from "next/navigation";
 export default function RegisterForm() {
+    const { toast } = useToast();
+    const router = useRouter();
+
     const form = useForm<RegisterBodyType>({
         resolver: zodResolver(RegisterBody),
         defaultValues: {
@@ -30,14 +33,45 @@ export default function RegisterForm() {
     });
 
     async function onSubmit(values: RegisterBodyType) {
-        // const result = fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/register`, {
-        //     body: JSON.stringify(values),
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        //     method: "POST",
-        // }).then((res) => res.json());
-        console.log(values);
+        try {
+            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/users`, {
+                body: JSON.stringify({
+                    username: values.name,
+                    email: values.email,
+                    password: values.password,
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                credentials: "include",
+            });
+
+            const result = await response.json();
+
+            if (response.status === 409) {
+                toast({
+                    variant: "destructive",
+                    title: "Tên người dùng hoặc mật khẩu đã đăng ký",
+                });
+            } else if (response.status === 400) {
+                toast({
+                    variant: "destructive",
+                    title: "Tên tài khoản không được viết hoa, không có khoảng trống, không kí tự đặc biệt",
+                });
+            } else {
+                toast({
+                    variant: "success",
+                    title: "Đăng ký thành công!",
+                });
+                router.push("/login");
+            }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Đã xảy ra lỗi trong quá trình kết nối tới server.",
+            });
+        }
     }
 
     const [cities, setCities] = useState<any>([]);
@@ -199,7 +233,7 @@ export default function RegisterForm() {
                                         <SelectContent>
                                             <SelectGroup>
                                                 {cities.map((city: any) => (
-                                                    <SelectItem key={city.Id} value={city.Name}>
+                                                    <SelectItem key={city.Id} id={city.Id} value={city.Name}>
                                                         {city.Name}
                                                     </SelectItem>
                                                 ))}
@@ -229,7 +263,7 @@ export default function RegisterForm() {
                                         <SelectContent>
                                             <SelectGroup>
                                                 {district.map((city: any) => (
-                                                    <SelectItem key={city.Id} value={city.Name}>
+                                                    <SelectItem key={city.Id} id={city.Id} value={city.Name}>
                                                         {city.Name}
                                                     </SelectItem>
                                                 ))}

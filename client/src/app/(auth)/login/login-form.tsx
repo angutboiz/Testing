@@ -11,9 +11,12 @@ import { LoginBodyType, LoginBody } from "@/schemaValidations/auth.schema";
 import { Cagliostro } from "next/font/google";
 import envConfig from "@/config";
 import { useToast } from "@/components/ui/use-toast";
+import { useRouter } from "next/navigation";
+import { create } from "zustand";
 
 export default function LoginForm() {
     const { toast } = useToast();
+    const router = useRouter();
 
     const form = useForm<LoginBodyType>({
         resolver: zodResolver(LoginBody),
@@ -25,49 +28,37 @@ export default function LoginForm() {
 
     async function onSubmit(values: LoginBodyType) {
         try {
-            const result = fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
-                body: JSON.stringify(values),
+            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
+                body: JSON.stringify({
+                    email: values.email,
+                    password: values.password,
+                }),
                 headers: {
                     "Content-Type": "application/json",
                 },
                 method: "POST",
-            }).then(async (res) => {
-                const payload = await res.json();
-
-                const data = {
-                    status: res.status,
-                    payload,
-                };
-                if (!res.ok) {
-                    throw data;
-                }
-                return data;
+                credentials: "include",
             });
-            toast({
-                description: "Login Success",
-            });
-            console.log(result);
-        } catch (error: any) {
-            const errors = error.payload.errirs as {
-                field: string;
-                message: string;
-            }[];
-            const status = error.status as number;
 
-            if (status === 422) {
-                errors.forEach((error) => {
-                    form.setError(error.field as "email" | "password", {
-                        type: "server",
-                        message: error.message,
-                    });
+            const result = await response.json();
+
+            if (response.status === 400) {
+                toast({
+                    variant: "destructive",
+                    title: "Tên tài khoản hoặc mật khẩu sai?",
                 });
             } else {
                 toast({
-                    title: "Lỗi",
-                    description: error.payload.message,
-                    variant: "destructive",
+                    variant: "success",
+                    title: "Đăng nhập thành công!",
                 });
+                router.push("/");
             }
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Đã xảy ra lỗi trong quá trình kết nối tới server.",
+            });
         }
     }
 

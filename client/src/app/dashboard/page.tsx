@@ -63,10 +63,7 @@ export default function Dashboard() {
                             <TabsTrigger value="reports">Reports</TabsTrigger>
                             <TabsTrigger value="notifications">Notifications</TabsTrigger>
                         </TabsList>
-                        <div className="flex gap-5 justify-end items-center">
-                            <p>Xin chào Trong An!</p>
-                            <UserNav />
-                        </div>
+
                         <TabsContent value="overview" className="space-y-4">
                             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
                                 <Card>

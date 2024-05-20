@@ -10,10 +10,13 @@ import { RegisterBody, RegisterBodyType } from "@/schemaValidations/auth.schema"
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import authApiRequest from "@/lib/auth";
 import { toast } from "@/components/ui/use-toast";
 import router from "next/router";
 import axios from "axios";
+import envConfig from "@/config";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import Link from "next/link";
+import ImageUpload from "./imageUpload";
 
 export default function MeProfile() {
     const form = useForm<RegisterBodyType>({
@@ -35,7 +38,18 @@ export default function MeProfile() {
 
     async function onSubmit(values: RegisterBodyType) {
         try {
-            const response = await authApiRequest.register(values);
+            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/profile`, {
+                body: JSON.stringify({
+                    username: values.username,
+                    email: values.email,
+                    password: values.password,
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                credentials: "include",
+            });
             if (response.status === 409) {
                 toast({
                     variant: "destructive",
@@ -114,19 +128,66 @@ export default function MeProfile() {
                             </TabsList>
                             <TabsContent value="account">
                                 <Card>
-                                    <CardHeader>
-                                        <CardTitle>Tài khoản</CardTitle>
-                                        <CardDescription>Thay đổi thông tin tài khoản của bạn</CardDescription>
-                                    </CardHeader>
+                                    <div className="flex justify-between items-center">
+                                        <CardHeader>
+                                            <CardTitle>Tài khoản</CardTitle>
+                                            <CardDescription>Thay đổi thông tin tài khoản của bạn</CardDescription>
+                                        </CardHeader>
+                                        <div className="pr-5">
+                                            <div className="flex gap-4">
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button className="rounded-full shadow" variant="outline">
+                                                            File upload
+                                                        </Button>
+                                                    </DialogTrigger>
+                                                    <DialogContent className="sm:max-w-[425px]">
+                                                        <DialogHeader>
+                                                            <DialogTitle className="text-center">Upload your files</DialogTitle>
+                                                            <DialogDescription className="text-center">The only file upload you will ever need</DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="grid gap-4 py-4">
+                                                            <ImageUpload />
+                                                        </div>
+                                                    </DialogContent>
+                                                </Dialog>
+                                                {/* <Link className="flex gap-1 items-center" href="https://github.com/ManishBisht777/file-vault">
+                                                    <MoveRight size={15} />
+                                                </Link> */}
+                                            </div>
+                                        </div>
+                                    </div>
                                     <CardContent className="space-y-2">
-                                        <div className="flex gap-5">
+                                        <div className="flex justify-between gap-5">
                                             <div className="flex-1">
-                                                <Label htmlFor="name">Name</Label>
-                                                <Input id="name" defaultValue="Pedro Duarte" />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="firstname"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Họ lót</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Nhập họ lót" {...field} type="text" />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />{" "}
                                             </div>
                                             <div className="flex-1">
-                                                <Label htmlFor="username">Username</Label>
-                                                <Input id="username" defaultValue="@peduarte" />
+                                                <FormField
+                                                    control={form.control}
+                                                    name="lastname"
+                                                    render={({ field }) => (
+                                                        <FormItem>
+                                                            <FormLabel>Họ tên</FormLabel>
+                                                            <FormControl>
+                                                                <Input placeholder="Nhập họ tên" {...field} type="text" />
+                                                            </FormControl>
+                                                            <FormMessage />
+                                                        </FormItem>
+                                                    )}
+                                                />
                                             </div>
                                         </div>
                                         <div className="flex justify-between gap-5">
@@ -254,7 +315,7 @@ export default function MeProfile() {
                                         </div>
                                     </CardContent>
                                     <CardFooter>
-                                        <Button>Save changes</Button>
+                                        <Button type="submit">Save changes</Button>
                                     </CardFooter>
                                 </Card>
                             </TabsContent>

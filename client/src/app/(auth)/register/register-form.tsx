@@ -7,9 +7,9 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { RegisterBody, RegisterBodyType, RegisterThreeField } from "@/schemaValidations/auth.schema";
+import envConfig from "@/config";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import authApiRequest from "@/lib/auth";
 
 export default function RegisterForm() {
     const { toast } = useToast();
@@ -26,9 +26,19 @@ export default function RegisterForm() {
     });
 
     async function onSubmit(values: RegisterThreeField) {
-        console.log("hello");
         try {
-            const response = await authApiRequest.register(values);
+            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/users`, {
+                body: JSON.stringify({
+                    username: values.username,
+                    email: values.email,
+                    password: values.password,
+                }),
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                method: "POST",
+                credentials: "include",
+            });
 
             if (response.status === 409) {
                 toast({

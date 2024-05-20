@@ -10,8 +10,9 @@ const isValidAge = (yearString: string) => {
 export const RegisterBody = z
     .object({
         username: z.string().trim().min(5, "Tên tài khoản phải trên 5 kí tự").regex(/^\S*$/, "Tên tài khoản không được chứa khoảng trắng").max(256, "Tên tài khoản không được vượt quá 256 ký tự"),
-        firstname: z.string(),
-        lastname: z.string(),
+        // firstname: z.string(),
+        // lastname: z.string(),
+        //phonenumber: z.string().regex(/^0\d{9}$/, "Số điện thoại phải bắt đầu bằng số 0 và có tổng cộng 10 chữ số"),
         email: z
             .string()
             .min(5, "Email phải có ít nhất 5 ký tự")
@@ -35,9 +36,9 @@ export const RegisterBody = z
             .string()
             .regex(/^\d{4}$/, "Năm sinh chỉ chứa 4 kí tự và chứa số")
             .refine(isValidAge, { message: "Người dùng phải trên 16 tuổi" }),
-        provine: z.string(),
-        district: z.string(),
-        ward: z.string(),
+        // provine: z.string(),
+        // district: z.string(),
+        // ward: z.string(),
     })
     .strict()
     .superRefine(({ confirmPassword, password }, ctx) => {
@@ -58,16 +59,16 @@ export const RegisterRes = z.object({
         account: z.object({
             id: z.number(),
             username: z.string(),
-            firstname: z.string(),
-            lastname: z.string(),
+            // firstname: z.string(),
+            // lastname: z.string(),
             email: z.string(),
             password: z.string(),
             confirmPassword: z.string(),
             address: z.string(),
             date: z.string(),
-            provine: z.string(),
-            district: z.string(),
-            ward: z.string(),
+            // provine: z.string(),
+            // district: z.string(),
+            // ward: z.string(),
         }),
     }),
     message: z.string(),

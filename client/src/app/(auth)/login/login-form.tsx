@@ -8,11 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { LoginBodyType, LoginBody } from "@/schemaValidations/auth.schema";
-import { Cagliostro } from "next/font/google";
-import envConfig from "@/config";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
-import { create } from "zustand";
+import authApiRequest from "@/lib/auth";
 
 export default function LoginForm() {
     const { toast } = useToast();
@@ -28,19 +26,7 @@ export default function LoginForm() {
 
     async function onSubmit(values: LoginBodyType) {
         try {
-            const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/login`, {
-                body: JSON.stringify({
-                    email: values.email,
-                    password: values.password,
-                }),
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                method: "POST",
-                credentials: "include",
-            });
-
-            const result = await response.json();
+            const response = await authApiRequest.login(values);
 
             if (response.status === 400) {
                 toast({

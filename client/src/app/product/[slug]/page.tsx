@@ -12,29 +12,13 @@ export default function Product({ params }: { params: { slug: string } }) {
             {product && (
                 <div className="flex gap-10 bg-gray-200 text-black rounded-xl relative overflow-hidden hover:text-red-500 cursor-pointer ">
                     <div className="relative h-[500px] overflow-hidden w-[500px]">
-                        <Image
-                            src={product?.url}
-                            fill
-                            alt=""
-                            className=" hover:scale-125 duration-500"
-                        />
+                        <Image src={product?.url} fill alt="" sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" className=" hover:scale-125 duration-500" />
                     </div>
                     <div className="p-3 w-1/2">
-                        <h1 className="text-lg line-clamp-2 mt-2">
-                            {product?.name}
-                        </h1>
+                        <h1 className="text-lg line-clamp-2 mt-2">{product?.name}</h1>
                         <div className="flex gap-3 text-red-500 my-[50px]">
-                            <h5 className="line-through text-gray-500">
-                                {Intl.NumberFormat().format(product?.price)}
-                            </h5>
-                            <h3>
-                                {Intl.NumberFormat().format(
-                                    product.price -
-                                        (product?.price * product?.discount) /
-                                            100
-                                )}
-                                đ
-                            </h3>
+                            <h5 className="line-through text-gray-500">{Intl.NumberFormat().format(product?.price)}</h5>
+                            <h3>{Intl.NumberFormat().format(product.price - (product?.price * product?.discount) / 100)}đ</h3>
                         </div>
 
                         <div className="flex items-center justify-between text-sm text-gray-500 ">
@@ -45,9 +29,7 @@ export default function Product({ params }: { params: { slug: string } }) {
                             <div className="">{product?.sell} Lượt bán</div>
                         </div>
                         <div className="absolute top-[10px] left-0 bg-red-700 w-[50px] h-7 rounded-r-lg">
-                            <div className="flex items-center justify-center w-full h-full text-white">
-                                {product?.discount}%
-                            </div>
+                            <div className="flex items-center justify-center w-full h-full text-white">{product?.discount}%</div>
                         </div>
                     </div>
                 </div>

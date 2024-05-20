@@ -57,7 +57,6 @@ export default function LoginForm() {
                 title: "Đã xảy ra lỗi trong quá trình kết nối tới server.",
             });
         }
-    }
 
     return (
         <Form {...form}>

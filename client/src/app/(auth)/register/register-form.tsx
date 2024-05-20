@@ -67,7 +67,7 @@ export default function RegisterForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="flex justify-between gap-5">
                     <div className="flex-1">
                         <FormField

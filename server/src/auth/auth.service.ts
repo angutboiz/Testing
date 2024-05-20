@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { UsersService } from 'src/users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
-import { Response } from 'express';
+import { Request, Response } from 'express';
 import { Prisma } from '@prisma/client';
 
 @Injectable()
@@ -38,5 +38,14 @@ export class AuthService {
     });
 
     return user;
+  }
+
+  logout(request: Request, response: Response) {
+    response.clearCookie('Authentication', {
+      httpOnly: true,
+      secure: true,
+      expires: new Date(0),
+    });
+    return { message: 'Logout successful' };
   }
 }

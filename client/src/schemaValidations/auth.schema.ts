@@ -9,7 +9,9 @@ const isValidAge = (yearString: string) => {
 
 export const RegisterBody = z
     .object({
-        name: z.string().trim().min(5, "Tên tài khoản phải trên 5 kí tự").regex(/^\S*$/, "Tên tài khoản không được chứa khoảng trắng").max(256, "Tên tài khoản không được vượt quá 256 ký tự"),
+        username: z.string().trim().min(5, "Tên tài khoản phải trên 5 kí tự").regex(/^\S*$/, "Tên tài khoản không được chứa khoảng trắng").max(256, "Tên tài khoản không được vượt quá 256 ký tự"),
+        firstname: z.string(),
+        lastname: z.string(),
         email: z
             .string()
             .min(5, "Email phải có ít nhất 5 ký tự")
@@ -25,7 +27,10 @@ export const RegisterBody = z
             .regex(/[0-9]/, "Mật khẩu phải có ít nhất một số")
             .regex(/[^a-zA-Z0-9]/, "Mật khẩu phải có ít nhất một ký tự đặc biệt"),
         confirmPassword: z.string().min(8, "Không được bỏ trống").max(100),
-        address: z.string().nonempty("Địa chỉ không được bỏ trống"),
+        address: z
+            .string()
+            .min(1, "Địa chỉ không được để trống")
+            .regex(/[a-zA-Z]/, "Vui lòng nhập địa chỉ"),
         date: z
             .string()
             .regex(/^\d{4}$/, "Năm sinh chỉ chứa 4 kí tự và chứa số")
@@ -52,7 +57,9 @@ export const RegisterRes = z.object({
         token: z.string(),
         account: z.object({
             id: z.number(),
-            name: z.string(),
+            username: z.string(),
+            firstname: z.string(),
+            lastname: z.string(),
             email: z.string(),
             password: z.string(),
             confirmPassword: z.string(),
@@ -67,11 +74,12 @@ export const RegisterRes = z.object({
 });
 
 export type RegisterResType = z.TypeOf<typeof RegisterRes>;
+export type RegisterThreeField = Pick<RegisterBodyType, "username" | "email" | "password">;
 
 export const LoginBody = z
     .object({
-        email: z.string().email(),
-        password: z.string().min(6).max(100),
+        email: z.string(),
+        password: z.string(),
     })
     .strict();
 

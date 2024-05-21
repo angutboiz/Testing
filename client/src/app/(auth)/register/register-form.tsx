@@ -6,7 +6,7 @@ import { useForm } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { RegisterBody, RegisterBodyType, RegisterThreeField } from "@/schemaValidations/auth.schema";
+import { RegisterThreeBody, RegisterThreeType } from "@/schemaValidations/auth.schema";
 import envConfig from "@/config";
 import { useToast } from "@/components/ui/use-toast";
 import { useRouter } from "next/navigation";
@@ -15,8 +15,8 @@ export default function RegisterForm() {
     const { toast } = useToast();
     const router = useRouter();
 
-    const form = useForm<RegisterBodyType>({
-        resolver: zodResolver(RegisterBody),
+    const form = useForm<RegisterThreeType>({
+        resolver: zodResolver(RegisterThreeBody),
         defaultValues: {
             email: "",
             username: "",
@@ -24,8 +24,10 @@ export default function RegisterForm() {
             confirmPassword: "",
         },
     });
+    console.log(form.formState.errors);
 
-    async function onSubmit(values: RegisterThreeField) {
+    async function onSubmit(values: RegisterThreeType) {
+        console.log("hehe");
         try {
             const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/users`, {
                 body: JSON.stringify({
@@ -67,7 +69,7 @@ export default function RegisterForm() {
 
     return (
         <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate>
                 <div className="flex justify-between gap-5">
                     <div className="flex-1">
                         <FormField

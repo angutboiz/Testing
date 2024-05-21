@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
-import { RegisterBody, RegisterBodyType } from "@/schemaValidations/auth.schema";
+import { RegisterDetailBody, RegisterDetailType } from "@/schemaValidations/auth.schema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -15,9 +15,36 @@ import router from "next/router";
 import axios from "axios";
 import envConfig from "@/config";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import useStore from "@/lib/store";
 
 export default function MeProfile() {
     const [imageSrc, setImageSrc] = useState<any>("");
+    const user = useStore((state: any) => state.user);
+    console.log(user);
+    const [profile, setProfile] = useState<any>([]);
+
+    async function GetProfile() {
+        try {
+            const res = await axios.get(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/profile`, {
+                withCredentials: true,
+            });
+            return res.data;
+        } catch (error) {
+            console.error("Error fetching profile:", error);
+            throw error;
+        }
+    }
+
+    useEffect(() => {
+        const fetchProfile = async () => {
+            try {
+                const data = await GetProfile();
+                setProfile(data);
+            } catch (err) {}
+        };
+
+        fetchProfile();
+    }, []);
 
     const handleFileChange = (event: any) => {
         const file = event.target.files[0];
@@ -30,16 +57,12 @@ export default function MeProfile() {
             reader.readAsDataURL(file);
         }
     };
-    const form = useForm<RegisterBodyType>({
-        resolver: zodResolver(RegisterBody),
+    const form = useForm<RegisterDetailType>({
+        resolver: zodResolver(RegisterDetailBody),
         defaultValues: {
-            email: "",
-            username: "",
             firstname: "",
             lastname: "",
             phonenumber: "",
-            password: "",
-            confirmPassword: "",
             date: "",
             provine: "",
             district: "",
@@ -47,9 +70,7 @@ export default function MeProfile() {
             avatar: "",
         },
     });
-
-    async function onSubmit(values: RegisterBodyType) {
-        console.log(values);
+    async function onSubmit(values: RegisterDetailType) {
         try {
             const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/profile`, {
                 body: JSON.stringify({
@@ -68,22 +89,22 @@ export default function MeProfile() {
                 method: "POST",
                 credentials: "include",
             });
-            if (response.status === 409) {
+            if (response.status === 401) {
                 toast({
                     variant: "destructive",
-                    title: "Tên người dùng hoặc mật khẩu đã đăng ký",
+                    title: "Bạn chưa đăng nhập",
                 });
-            } else if (response.status === 400) {
+            } else if (response.status === 403) {
                 toast({
                     variant: "destructive",
-                    title: "Tên tài khoản không được viết hoa, không có khoảng trống, không kí tự đặc biệt",
+                    title: "Bạn đã thay đổi rồi, không thay đổi được nữa",
                 });
             } else {
                 toast({
                     variant: "success",
-                    title: "Đăng ký thành công!",
+                    title: "Cập nhật thành công!",
                 });
-                router.push("/login");
+                router.push("/me");
             }
         } catch (error) {
             toast({
@@ -142,189 +163,398 @@ export default function MeProfile() {
                                 <TabsTrigger value="account">Tài khoản</TabsTrigger>
                                 <TabsTrigger value="password">Mật khẩu</TabsTrigger>
                             </TabsList>
-                            <TabsContent value="account">
-                                <Card>
-                                    <div className="flex justify-between items-center">
-                                        <CardHeader>
-                                            <CardTitle>Tài khoản</CardTitle>
-                                            <CardDescription>Thay đổi thông tin tài khoản của bạn</CardDescription>
-                                        </CardHeader>
+                            {user && user.data.onboarding ? (
+                                <TabsContent value="account">
+                                    <Card>
+                                        <div className="flex justify-between items-center">
+                                            <CardHeader>
+                                                <CardTitle>Tài khoản</CardTitle>
+                                                <CardDescription>Thay đổi thông tin tài khoản của bạn {user.data.username} </CardDescription>
+                                            </CardHeader>
 
-                                        <div className="pr-5 flex gap-3 items-center">
-                                            <div className="">
-                                                <Avatar className="h-10 w-10">
-                                                    <AvatarImage src={imageSrc} alt="@shadcn" className="object-cover" />
-                                                    <AvatarFallback>TA</AvatarFallback>
-                                                </Avatar>
-                                            </div>
-                                            <div className="w-[108px]">
-                                                <Input id="picture" type="file" onChange={handleFileChange} accept="image/png, image/gif, image/jpeg, image/jpg" />
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <CardContent className="space-y-2">
-                                        <div className="flex justify-between gap-5">
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="firstname"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Họ lót</FormLabel>
-                                                            <FormControl>
-                                                                <Input placeholder="Nhập họ lót" {...field} type="text" />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />{" "}
-                                            </div>
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="lastname"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Họ tên</FormLabel>
-                                                            <FormControl>
-                                                                <Input placeholder="Nhập họ tên" {...field} type="text" />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                            <div className="pr-5 flex gap-3 items-center">
+                                                <div className="">
+                                                    <Avatar className="h-10 w-10">
+                                                        <AvatarImage src={imageSrc} alt="@shadcn" className="object-cover" />
+                                                        <AvatarFallback></AvatarFallback>
+                                                    </Avatar>
+                                                </div>
+                                                <div className="w-[150px]">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="avatar"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormControl>
+                                                                    <Input id="picture" type="file" onChange={handleFileChange} accept="image/png, image/gif, image/jpeg, image/jpg" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
                                             </div>
                                         </div>
-                                        <div className="flex justify-between gap-5">
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="phonenumber"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Số điện thoại</FormLabel>
-                                                            <FormControl>
-                                                                <Input placeholder="Nhập số điện thoại" {...field} type="number" />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />{" "}
+                                        <CardContent className="space-y-2">
+                                            <div className="flex justify-between gap-5">
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="firstname"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Họ lót</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập họ lót" {...field} value={profile.firstname} type="text" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="lastname"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Họ tên</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập họ tên" {...field} type="text" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="date"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Năm sinh</FormLabel>
-                                                            <FormControl>
-                                                                <Input placeholder="Nhập Năm sinh" {...field} type="number" />
-                                                            </FormControl>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                            <div className="flex justify-between gap-5">
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="phonenumber"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Số điện thoại</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập số điện thoại" {...field} type="number" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="date"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Năm sinh</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập Năm sinh" {...field} type="number" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
                                             </div>
-                                        </div>
 
-                                        <div className="flex justify-between gap-5">
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="provine"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Chọn tỉnh</FormLabel>
-                                                            <Select
-                                                                onValueChange={(e) => {
-                                                                    field.onChange(e);
-                                                                    handleCityChange(e);
-                                                                }}>
-                                                                <SelectTrigger id="city">
-                                                                    <SelectValue placeholder="Chọn Tỉnh" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectGroup>
-                                                                        {cities.map((city: any) => (
-                                                                            <SelectItem key={city.Id} id={city.Id} value={city.Name}>
-                                                                                {city.Name}
-                                                                            </SelectItem>
-                                                                        ))}
-                                                                    </SelectGroup>
-                                                                </SelectContent>
-                                                            </Select>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />{" "}
+                                            <div className="flex justify-between gap-5">
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="provine"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Chọn tỉnh</FormLabel>
+                                                                <Select
+                                                                    onValueChange={(e) => {
+                                                                        field.onChange(e);
+                                                                        handleCityChange(e);
+                                                                    }}>
+                                                                    <SelectTrigger id="city">
+                                                                        <SelectValue placeholder="Chọn Tỉnh" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            {cities.map((city: any) => (
+                                                                                <SelectItem key={city.Id} id={city.Id} value={city.Name}>
+                                                                                    {city.Name}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="district"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Chọn huyện</FormLabel>
+                                                                <Select
+                                                                    onValueChange={(e) => {
+                                                                        field.onChange(e);
+                                                                        handleDistrictChange(e);
+                                                                    }}>
+                                                                    <SelectTrigger className="">
+                                                                        <SelectValue placeholder="Chọn huyện" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            {district.map((city: any) => (
+                                                                                <SelectItem key={city.Id} id={city.Id} value={city.Name}>
+                                                                                    {city.Name}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="ward"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Chọn xã</FormLabel>
+                                                                <Select
+                                                                    onValueChange={(e) => {
+                                                                        field.onChange(e);
+                                                                    }}>
+                                                                    <SelectTrigger id="city">
+                                                                        <SelectValue placeholder="Chọn xã" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            {ward.map((city: any) => (
+                                                                                <SelectItem key={city.Id} value={city.Name}>
+                                                                                    {city.Name}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
                                             </div>
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="district"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Chọn huyện</FormLabel>
-                                                            <Select
-                                                                onValueChange={(e) => {
-                                                                    field.onChange(e);
-                                                                    handleDistrictChange(e);
-                                                                }}>
-                                                                <SelectTrigger className="">
-                                                                    <SelectValue placeholder="Chọn huyện" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectGroup>
-                                                                        {district.map((city: any) => (
-                                                                            <SelectItem key={city.Id} id={city.Id} value={city.Name}>
-                                                                                {city.Name}
-                                                                            </SelectItem>
-                                                                        ))}
-                                                                    </SelectGroup>
-                                                                </SelectContent>
-                                                            </Select>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
-                                            </div>
-                                            <div className="flex-1">
-                                                <FormField
-                                                    control={form.control}
-                                                    name="ward"
-                                                    render={({ field }) => (
-                                                        <FormItem>
-                                                            <FormLabel>Chọn xã</FormLabel>
-                                                            <Select
-                                                                onValueChange={(e) => {
-                                                                    field.onChange(e);
-                                                                }}>
-                                                                <SelectTrigger id="city">
-                                                                    <SelectValue placeholder="Chọn xã" />
-                                                                </SelectTrigger>
-                                                                <SelectContent>
-                                                                    <SelectGroup>
-                                                                        {ward.map((city: any) => (
-                                                                            <SelectItem key={city.Id} value={city.Name}>
-                                                                                {city.Name}
-                                                                            </SelectItem>
-                                                                        ))}
-                                                                    </SelectGroup>
-                                                                </SelectContent>
-                                                            </Select>
-                                                            <FormMessage />
-                                                        </FormItem>
-                                                    )}
-                                                />
+                                        </CardContent>
+                                        <CardFooter className="flex justify-end">
+                                            <Button type="submit">Lưu</Button>
+                                        </CardFooter>
+                                    </Card>
+                                </TabsContent>
+                            ) : (
+                                <TabsContent value="account">
+                                    <Card>
+                                        <div className="flex justify-between items-center">
+                                            <CardHeader>
+                                                <CardTitle>Tài khoản</CardTitle>
+                                                <CardDescription>Thay đổi </CardDescription>
+                                            </CardHeader>
+
+                                            <div className="pr-5 flex gap-3 items-center">
+                                                <div className="">
+                                                    <Avatar className="h-10 w-10">
+                                                        <AvatarImage src={imageSrc} alt="@shadcn" className="object-cover" />
+                                                        <AvatarFallback>TA</AvatarFallback>
+                                                    </Avatar>
+                                                </div>
+                                                <div className="w-[150px]">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="avatar"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormControl>
+                                                                    <Input id="picture" type="file" onChange={handleFileChange} accept="image/png, image/gif, image/jpeg, image/jpg" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
                                             </div>
                                         </div>
-                                    </CardContent>
-                                    <CardFooter className="flex justify-end">
-                                        <Button type="submit">Lưu</Button>
-                                    </CardFooter>
-                                </Card>
-                            </TabsContent>
+                                        <CardContent className="space-y-2">
+                                            <div className="flex justify-between gap-5">
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="firstname"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Họ</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập họ" {...field} type="text" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="lastname"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Tên</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập tên" {...field} type="text" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                            </div>
+                                            <div className="flex justify-between gap-5">
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="phonenumber"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Số điện thoại</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập số điện thoại" {...field} type="number" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="date"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Năm sinh</FormLabel>
+                                                                <FormControl>
+                                                                    <Input placeholder="Nhập Năm sinh" {...field} type="number" />
+                                                                </FormControl>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            <div className="flex justify-between gap-5">
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="provine"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Chọn tỉnh</FormLabel>
+                                                                <Select
+                                                                    onValueChange={(e) => {
+                                                                        field.onChange(e);
+                                                                        handleCityChange(e);
+                                                                    }}>
+                                                                    <SelectTrigger id="city">
+                                                                        <SelectValue placeholder="Chọn Tỉnh" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            {cities.map((city: any) => (
+                                                                                <SelectItem key={city.Id} id={city.Id} value={city.Name}>
+                                                                                    {city.Name}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />{" "}
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="district"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Chọn huyện</FormLabel>
+                                                                <Select
+                                                                    onValueChange={(e) => {
+                                                                        field.onChange(e);
+                                                                        handleDistrictChange(e);
+                                                                    }}>
+                                                                    <SelectTrigger className="">
+                                                                        <SelectValue placeholder="Chọn huyện" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            {district.map((city: any) => (
+                                                                                <SelectItem key={city.Id} id={city.Id} value={city.Name}>
+                                                                                    {city.Name}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                                <div className="flex-1">
+                                                    <FormField
+                                                        control={form.control}
+                                                        name="ward"
+                                                        render={({ field }) => (
+                                                            <FormItem>
+                                                                <FormLabel>Chọn xã</FormLabel>
+                                                                <Select
+                                                                    onValueChange={(e) => {
+                                                                        field.onChange(e);
+                                                                    }}>
+                                                                    <SelectTrigger id="city">
+                                                                        <SelectValue placeholder="Chọn xã" />
+                                                                    </SelectTrigger>
+                                                                    <SelectContent>
+                                                                        <SelectGroup>
+                                                                            {ward.map((city: any) => (
+                                                                                <SelectItem key={city.Id} value={city.Name}>
+                                                                                    {city.Name}
+                                                                                </SelectItem>
+                                                                            ))}
+                                                                        </SelectGroup>
+                                                                    </SelectContent>
+                                                                </Select>
+                                                                <FormMessage />
+                                                            </FormItem>
+                                                        )}
+                                                    />
+                                                </div>
+                                            </div>
+                                        </CardContent>
+                                        <CardFooter className="flex justify-end">
+                                            <Button type="submit">Lưu</Button>
+                                        </CardFooter>
+                                    </Card>
+                                </TabsContent>
+                            )}
+
                             <TabsContent value="password">
                                 <Card>
                                     <CardHeader>

@@ -1,5 +1,5 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
-import { UsersService } from 'src/users/users.service';
+import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
 import { Request, Response } from 'express';
@@ -31,7 +31,7 @@ export class AuthService {
     };
     const access_token = await this.jwtService.sign(payload);
 
-    const expires = new Date(new Date().getTime() + 3600 * 1000);
+    const expires = new Date(new Date().getTime() + 60 * 60 * 1000); // 3600 seconds × 1000 milliseconds
     response.cookie('Authentication', access_token, {
       expires: expires,
       httpOnly: true,

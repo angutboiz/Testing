@@ -9,15 +9,15 @@ import {
   UseInterceptors,
 } from '@nestjs/common';
 import { Profile, User } from '@prisma/client';
-import { CurrentUser } from 'src/users/user.decorator';
+import { CurrentUser } from '../users/user.decorator';
 import { ProfileService } from './profile.service';
-import { JwtAuthGuard } from 'src/auth/guards/jwt-auth.guards';
+import { JwtAuthGuard } from '../auth/guards/jwt-auth.guards';
 import { Onboarding } from './guards/onboarding.guard';
 import { CreateProfileDto } from './dto/createProfile.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { multerOptions } from './multerOptions';
 import { UpdateProfileDto } from './dto/updateProfile.dto';
-import { UserActive } from 'src/users/guards/user-active.guard';
+import { UserActive } from '../users/guards/user-active.guard';
 
 @Controller('profile')
 export class ProfileController {

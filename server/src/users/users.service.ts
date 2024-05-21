@@ -2,18 +2,19 @@ import { Prisma, User } from '@prisma/client';
 import { PrismaService } from './../prisma/prisma.service';
 import { ConflictException, Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
+import { UsersResponse } from './dto/users-reponse.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
-
   /**
    * Find user by unique input
    * @param query
    * @returns User
    */
   async findUser(query: Prisma.UserWhereUniqueInput): Promise<User> {
-    return this.prisma.user.findUnique({ where: query });
+    const user = await this.prisma.user.findUnique({ where: query });
+    return user;
   }
 
   /**
@@ -34,7 +35,7 @@ export class UsersService {
    * @param data
    * @returns User
    */
-  async createUser(data: Prisma.UserCreateInput): Promise<User> {
+  async createUser(data: Prisma.UserCreateInput): Promise<UsersResponse> {
     // Format - lower and remove all spaces
 
     // Check if unique user
@@ -45,16 +46,21 @@ export class UsersService {
     const user = await this.findFirst(query);
     if (user) throw new ConflictException('The user is already exists!');
 
+    // Create new user
     const saltOrRounds = 10;
-    const password = await bcrypt.hash(data.password, saltOrRounds);
+    const hashedPassword = await bcrypt.hash(data.password, saltOrRounds);
 
-    const newUser = {
+    const payload = {
       username: data.username,
       email: data.email,
-      password,
+      password: hashedPassword,
     };
 
-    return this.prisma.user.create({ data: newUser });
+    const newUser = await this.prisma.user.create({
+      data: payload,
+    });
+    const { password, ...body } = newUser;
+    return body;
   }
 
   /**
@@ -70,8 +76,10 @@ export class UsersService {
     if (user) return { msg: 'User has been deleted.' };
   }
 
-  async getCurrentUser(user: User) {
-    const { password, ...data } = user;
-    return { success: true, data: data };
+  async getCurrentUser(
+    user: User,
+  ): Promise<{ success: boolean; data: UsersResponse }> {
+    const { password, ...body } = user;
+    return { success: true, data: body };
   }
 }

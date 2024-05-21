@@ -1,9 +1,21 @@
 // store.js
-import create from "zustand";
+import { create } from "zustand";
+import { devtools, persist } from "zustand/middleware";
 
-const useStore = create((set) => ({
-    user: null,
-    setUser: (user: any) => set({ user }),
-}));
+type Store = {
+  user: null | any;
+  setUser: (inputUser: any) => void;
+};
+const useStore = create<Store>()(
+  devtools(
+    persist(
+      (set) => ({
+        user: null,
+        setUser: (inputUser: any) => set(() => ({ user: inputUser })),
+      }),
+      { name: "userStore" }
+    )
+  )
+);
 
 export default useStore;

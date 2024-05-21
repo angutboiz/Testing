@@ -28,10 +28,6 @@ export const RegisterBody = z
             .regex(/[0-9]/, "Mật khẩu phải có ít nhất một số")
             .regex(/[^a-zA-Z0-9]/, "Mật khẩu phải có ít nhất một ký tự đặc biệt"),
         confirmPassword: z.string().min(8, "Không được bỏ trống").max(100),
-        address: z
-            .string()
-            .min(2, "Địa chỉ không được để trống")
-            .regex(/[a-zA-Z]/, "Vui lòng nhập địa chỉ"),
         date: z
             .string()
             .regex(/^\d{4}$/, "Năm sinh chỉ chứa 4 kí tự và chứa số")
@@ -39,6 +35,7 @@ export const RegisterBody = z
         provine: z.string(),
         district: z.string(),
         ward: z.string(),
+        avatar: z.string(),
     })
     .strict()
     .superRefine(({ confirmPassword, password }, ctx) => {
@@ -64,11 +61,11 @@ export const RegisterRes = z.object({
             email: z.string(),
             password: z.string(),
             confirmPassword: z.string(),
-            address: z.string(),
             date: z.string(),
             provine: z.string(),
             district: z.string(),
             ward: z.string(),
+            avatar: z.string(),
         }),
     }),
     message: z.string(),

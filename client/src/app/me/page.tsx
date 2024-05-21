@@ -14,9 +14,6 @@ import { toast } from "@/components/ui/use-toast";
 import router from "next/router";
 import axios from "axios";
 import envConfig from "@/config";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import Link from "next/link";
-import ImageUpload from "./imageUpload";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function MeProfile() {
@@ -44,20 +41,26 @@ export default function MeProfile() {
             password: "",
             confirmPassword: "",
             date: "",
-            address: "",
             provine: "",
             district: "",
             ward: "",
+            avatar: "",
         },
     });
 
     async function onSubmit(values: RegisterBodyType) {
+        console.log(values);
         try {
             const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/profile`, {
                 body: JSON.stringify({
-                    username: values.username,
-                    email: values.email,
-                    password: values.password,
+                    firstname: values.firstname,
+                    lastname: values.lastname,
+                    city: values.provine, //tỉnh
+                    provine: values.district, //huyện
+                    address: values.ward, //xã
+                    phoneNumber: values.phonenumber,
+                    birthday: values.date, // ngày sinh
+                    avatar: values.avatar,
                 }),
                 headers: {
                     "Content-Type": "application/json",
@@ -110,8 +113,6 @@ export default function MeProfile() {
     }, []);
 
     const handleCityChange = (value: any) => {
-        console.log(value);
-
         setSelectedCity(value);
 
         const selectedCityData = cities.find((city: any) => city.Name === value);
@@ -135,7 +136,7 @@ export default function MeProfile() {
         <div className="h-[80vh]">
             <div className="flex items-center justify-center h-full">
                 <Form {...form}>
-                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate>
+                    <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8" noValidate encType="multipart/form-data">
                         <Tabs defaultValue="account" className="w-[700px]">
                             <TabsList className="grid w-full grid-cols-2">
                                 <TabsTrigger value="account">Tài khoản</TabsTrigger>
@@ -226,21 +227,7 @@ export default function MeProfile() {
                                                 />
                                             </div>
                                         </div>
-                                        <div className="flex-1">
-                                            <FormField
-                                                control={form.control}
-                                                name="address"
-                                                render={({ field }) => (
-                                                    <FormItem>
-                                                        <FormLabel>Địa chỉ</FormLabel>
-                                                        <FormControl>
-                                                            <Input placeholder="Nhập địa chỉ" {...field} type="text" />
-                                                        </FormControl>
-                                                        <FormMessage />
-                                                    </FormItem>
-                                                )}
-                                            />{" "}
-                                        </div>
+
                                         <div className="flex justify-between gap-5">
                                             <div className="flex-1">
                                                 <FormField

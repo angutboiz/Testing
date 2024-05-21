@@ -17,8 +17,22 @@ import envConfig from "@/config";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import Link from "next/link";
 import ImageUpload from "./imageUpload";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 export default function MeProfile() {
+    const [imageSrc, setImageSrc] = useState<any>("");
+
+    const handleFileChange = (event: any) => {
+        const file = event.target.files[0];
+
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                setImageSrc(reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
     const form = useForm<RegisterBodyType>({
         resolver: zodResolver(RegisterBody),
         defaultValues: {
@@ -26,6 +40,7 @@ export default function MeProfile() {
             username: "",
             firstname: "",
             lastname: "",
+            phonenumber: "",
             password: "",
             confirmPassword: "",
             date: "",
@@ -133,27 +148,16 @@ export default function MeProfile() {
                                             <CardTitle>Tài khoản</CardTitle>
                                             <CardDescription>Thay đổi thông tin tài khoản của bạn</CardDescription>
                                         </CardHeader>
-                                        <div className="pr-5">
-                                            <div className="flex gap-4">
-                                                <Dialog>
-                                                    <DialogTrigger asChild>
-                                                        <Button className="rounded-full shadow" variant="outline">
-                                                            File upload
-                                                        </Button>
-                                                    </DialogTrigger>
-                                                    <DialogContent className="sm:max-w-[425px]">
-                                                        <DialogHeader>
-                                                            <DialogTitle className="text-center">Upload your files</DialogTitle>
-                                                            <DialogDescription className="text-center">The only file upload you will ever need</DialogDescription>
-                                                        </DialogHeader>
-                                                        <div className="grid gap-4 py-4">
-                                                            <ImageUpload />
-                                                        </div>
-                                                    </DialogContent>
-                                                </Dialog>
-                                                {/* <Link className="flex gap-1 items-center" href="https://github.com/ManishBisht777/file-vault">
-                                                    <MoveRight size={15} />
-                                                </Link> */}
+
+                                        <div className="pr-5 flex gap-3 items-center">
+                                            <div className="">
+                                                <Avatar className="h-10 w-10">
+                                                    <AvatarImage src={imageSrc} alt="@shadcn" className="object-cover" />
+                                                    <AvatarFallback>TA</AvatarFallback>
+                                                </Avatar>
+                                            </div>
+                                            <div className="w-[108px]">
+                                                <Input id="picture" type="file" onChange={handleFileChange} accept="image/png, image/gif, image/jpeg, image/jpg" />
                                             </div>
                                         </div>
                                     </div>
@@ -194,12 +198,12 @@ export default function MeProfile() {
                                             <div className="flex-1">
                                                 <FormField
                                                     control={form.control}
-                                                    name="address"
+                                                    name="phonenumber"
                                                     render={({ field }) => (
                                                         <FormItem>
-                                                            <FormLabel>Địa chỉ</FormLabel>
+                                                            <FormLabel>Số điện thoại</FormLabel>
                                                             <FormControl>
-                                                                <Input placeholder="Nhập địa chỉ" {...field} type="text" />
+                                                                <Input placeholder="Nhập số điện thoại" {...field} type="number" />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
@@ -214,13 +218,28 @@ export default function MeProfile() {
                                                         <FormItem>
                                                             <FormLabel>Năm sinh</FormLabel>
                                                             <FormControl>
-                                                                <Input placeholder="Nhập Năm sinh" {...field} type="text" />
+                                                                <Input placeholder="Nhập Năm sinh" {...field} type="number" />
                                                             </FormControl>
                                                             <FormMessage />
                                                         </FormItem>
                                                     )}
                                                 />
                                             </div>
+                                        </div>
+                                        <div className="flex-1">
+                                            <FormField
+                                                control={form.control}
+                                                name="address"
+                                                render={({ field }) => (
+                                                    <FormItem>
+                                                        <FormLabel>Địa chỉ</FormLabel>
+                                                        <FormControl>
+                                                            <Input placeholder="Nhập địa chỉ" {...field} type="text" />
+                                                        </FormControl>
+                                                        <FormMessage />
+                                                    </FormItem>
+                                                )}
+                                            />{" "}
                                         </div>
                                         <div className="flex justify-between gap-5">
                                             <div className="flex-1">
@@ -314,8 +333,8 @@ export default function MeProfile() {
                                             </div>
                                         </div>
                                     </CardContent>
-                                    <CardFooter>
-                                        <Button type="submit">Save changes</Button>
+                                    <CardFooter className="flex justify-end">
+                                        <Button type="submit">Lưu</Button>
                                     </CardFooter>
                                 </Card>
                             </TabsContent>

@@ -44,7 +44,7 @@ export default function LoginForm() {
                     variant: "destructive",
                     title: "Tên tài khoản hoặc mật khẩu sai?",
                 });
-            } else {
+            } else if (response.ok) {
                 toast({
                     variant: "success",
                     title: "Đăng nhập thành công!",

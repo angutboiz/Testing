@@ -12,34 +12,38 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
 import envConfig from "@/config";
+import useStore from "@/lib/store";
 import Link from "next/link";
 import router from "next/router";
 
 export function UserNav(props: any) {
     const data = props.props;
+    const { setUser, user } = useStore();
 
-    // async function handleLogout() {
-    //     const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {
-    //         headers: {
-    //             "Content-Type": "application/json",
-    //         },
-    //         method: "POST",
-    //         credentials: "include",
-    //     });
+    async function handleLogout() {
+        const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`, {
+            headers: {
+                "Content-Type": "application/json",
+            },
+            method: "POST",
+            credentials: "include",
+        });
 
-    //     if (response.status === 401) {
-    //         toast({
-    //             variant: "destructive",
-    //             title: "Bạn chưa đăng nhập",
-    //         });
-    //     } else {
-    //         toast({
-    //             variant: "success",
-    //             title: "Đăng xuất thành công!",
-    //         });
-    //         window.location.reload();
-    //     }
-    // }
+        if (response.status === 401) {
+            toast({
+                variant: "destructive",
+                title: "Bạn chưa đăng nhập",
+            });
+        } else {
+            toast({
+                variant: "success",
+                title: "Đăng xuất thành công!",
+            });
+            window.location.reload();
+        }
+        setUser("");
+        router.push("/");
+    }
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -73,7 +77,7 @@ export function UserNav(props: any) {
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
                     Log out
                     <DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
                 </DropdownMenuItem>

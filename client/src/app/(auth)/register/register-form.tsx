@@ -24,10 +24,8 @@ export default function RegisterForm() {
             confirmPassword: "",
         },
     });
-    console.log(form.formState.errors);
 
     async function onSubmit(values: RegisterThreeType) {
-        console.log("hehe");
         try {
             const response = await fetch(`${envConfig.NEXT_PUBLIC_API_ENDPOINT}/users`, {
                 body: JSON.stringify({
@@ -45,7 +43,7 @@ export default function RegisterForm() {
             if (response.status === 409) {
                 toast({
                     variant: "destructive",
-                    title: "Tên người dùng hoặc mật khẩu đã đăng ký",
+                    title: "Tên người dùng hoặc email đã được đăng ký",
                 });
             } else if (response.status === 400) {
                 toast({

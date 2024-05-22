@@ -35,6 +35,8 @@ export class AuthService {
     response.cookie('Authentication', access_token, {
       expires: expires,
       httpOnly: true,
+      secure: true, // ensure the secure flag is set in production
+      sameSite: 'none',
     });
 
     return user;

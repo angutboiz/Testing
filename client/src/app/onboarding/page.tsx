@@ -49,6 +49,7 @@ export default function MeProfile() {
   /** Handle form-data */
   const handleFileChange = (event: any) => {
     const file = event.target.files[0];
+    console.log(file);
     setImageSrc(file);
   };
 
@@ -90,6 +91,7 @@ export default function MeProfile() {
       "birthday",
       new Date(values.date).toISOString().slice(0, 10)
     );
+    console.log("formData: ", formData.get("avatar"));
     try {
       const response = await fetch(
         `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/profile`,
@@ -100,28 +102,49 @@ export default function MeProfile() {
           credentials: "include",
         }
       );
-      if (response.status === 401) {
-        toast({
-          variant: "destructive",
-          title: "Bạn chưa đăng nhập",
-        });
-      } else if (response.status === 403) {
-        toast({
-          variant: "destructive",
-          title:
-            "Tài khoản đã đăng ký `Profile`, vui lòng cập nhật nếu bạn muốn sửa đổi.",
-        });
-      } else if (response.status === 400) {
-        toast({
-          variant: "destructive",
-          title: "Vui lòng kiểm tra lại các trường",
-        });
-      } else if (response.ok) {
+
+      switch (response.status) {
+        case 401:
+          toast({
+            variant: "destructive",
+            title: "Bạn chưa đăng nhập",
+          });
+          break;
+        case 403:
+          toast({
+            variant: "destructive",
+            title:
+              "Tài khoản đã đăng ký `Profile`, vui lòng cập nhật nếu bạn muốn sửa đổi.",
+          });
+          break;
+
+        case 400:
+          toast({
+            variant: "destructive",
+            title: "Vui lòng kiểm tra lại các trường",
+          });
+          break;
+
+        case 409:
+          toast({
+            variant: "destructive",
+            title: "Số điện thoại đã được đăng ký",
+          });
+          break;
+
+        default:
+          toast({
+            variant: "destructive",
+            title: "Server hiện đang bận thử lại sau!",
+          });
+          router.push("/me");
+      }
+      if (response.ok) {
         toast({
           variant: "success",
-          title: "Cập nhật thành công!",
+          title: "Tạo thành công hồ sơ cá nhân!",
         });
-        router.push("/me");
+        router.push("/");
       }
     } catch (error) {
       toast({

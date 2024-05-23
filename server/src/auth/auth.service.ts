@@ -29,7 +29,9 @@ export class AuthService {
       sub: user.id,
       onboarding: user.onboarding,
     };
-    const access_token = await this.jwtService.sign(payload);
+    const access_token = await this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET
+    });
 
     const expires = new Date(new Date().getTime() + 60 * 60 * 1000); // 3600 seconds × 1000 milliseconds
     response.cookie('Authentication', access_token, {

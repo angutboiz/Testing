@@ -39,10 +39,15 @@ export default function LoginForm() {
             });
 
             const result = await response.json();
-            if (response.status === 400) {
+            if (response.status === 401) {
                 toast({
                     variant: "destructive",
                     title: "Tên tài khoản hoặc mật khẩu sai?",
+                });
+            } else if (response.status === 400) {
+                toast({
+                    variant: "destructive",
+                    title: "Bạn đã đăng nhập quá nhiều, vui lòng thử lại sau 5p",
                 });
             } else if (response.ok) {
                 toast({

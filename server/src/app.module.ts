@@ -21,8 +21,8 @@ import { ThrottlerModule } from '@nestjs/throttler';
       isGlobal: true,
     }),
     ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'uploads/'),
-      serveRoot: '/uploads/',
+      rootPath: join(__dirname, '..', 'tmp/'),
+      serveRoot: '/tmp/',
     }),
     AuthModule,
     UsersModule,

@@ -137,7 +137,6 @@ export default function MeProfile() {
             variant: "destructive",
             title: "Server hiện đang bận thử lại sau!",
           });
-          router.push("/me");
       }
       if (response.ok) {
         toast({

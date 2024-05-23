@@ -4,21 +4,20 @@ import {
   IsPhoneNumber,
   IsDateString,
   IsOptional,
-  MinLength,
   IsNotEmpty,
 } from 'class-validator';
 
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @MinLength(6)
   @Transform(({ value }: TransformFnParams) => value?.trim())
+  @IsNotEmpty()
   firstName: string;
 
   @IsOptional()
   @IsString()
-  @MinLength(6)
   @Transform(({ value }: TransformFnParams) => value?.trim())
+  @IsNotEmpty()
   lastName: string;
 
   @IsOptional()

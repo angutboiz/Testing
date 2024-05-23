@@ -5,17 +5,16 @@ import {
   IsPhoneNumber,
   IsDateString,
   IsOptional,
-  MinLength,
 } from 'class-validator';
 
 export class CreateProfileDto {
   @IsString()
-  @MinLength(3)
   @Transform(({ value }: TransformFnParams) => value?.trim())
+  @IsNotEmpty()
   firstName: string;
 
   @IsString()
-  @MinLength(3)
+  @IsNotEmpty()
   @Transform(({ value }: TransformFnParams) => value?.trim())
   lastName: string;
 

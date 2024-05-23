@@ -35,8 +35,8 @@ export class AuthService {
     response.cookie('Authentication', access_token, {
       expires: expires,
       httpOnly: true,
-      secure: true, // ensure the secure flag is set in production
-      sameSite: 'none',
+      secure: process.env.NODE_ENV === "PRODUCTION",
+      sameSite: process.env.NODE_ENV === "PRODUCTION" ? 'none' : 'lax',
     });
 
     return user;
@@ -45,7 +45,8 @@ export class AuthService {
   logout(request: Request, response: Response) {
     response.clearCookie('Authentication', {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'PRODUCTION',
+      sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'none' : 'lax',
       expires: new Date(0),
     });
     return { message: 'Logout successful' };

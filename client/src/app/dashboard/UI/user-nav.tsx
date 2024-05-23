@@ -13,8 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "@/components/ui/use-toast";
 import envConfig from "@/config";
-import Link from "next/link";
 import useStore from "@/lib/store";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 export function UserNav(props: any) {
   const router = useRouter();

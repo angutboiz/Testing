@@ -120,9 +120,9 @@ export default function MeProfile() {
       lastname: "",
       phonenumber: "",
       date: "",
-      provine: "",
-      district: "",
-      ward: "",
+      city: "",
+      province: "",
+      address: "",
       avatar: "",
     },
   });
@@ -135,9 +135,9 @@ export default function MeProfile() {
           body: JSON.stringify({
             firstname: values.firstname,
             lastname: values.lastname,
-            city: values.provine, //tỉnh
-            provine: values.district, //huyện
-            address: values.ward, //xã
+            city: values.city, //tỉnh
+            province: values.province, //huyện
+            address: values.address, //xã
             phoneNumber: values.phonenumber,
             birthday: values.date, // ngày sinh
             avatar: values.avatar,
@@ -179,8 +179,8 @@ export default function MeProfile() {
   }
 
   const [cities, setCities] = useState<any>([]);
-  const [district, setDistricts] = useState<any>([]);
-  const [ward, setWards] = useState<any>([]);
+  const [province, setDistricts] = useState<any>([]);
+  const [address, setWards] = useState<any>([]);
   const [selectedCity, setSelectedCity] = useState<any>("");
   const [selectedDistrict, setSelectedDistrict] = useState<any>("");
 
@@ -205,7 +205,7 @@ export default function MeProfile() {
     if (selectedCityData) {
       setDistricts(selectedCityData.Districts);
     }
-    setProfile({ ...profile, provine: value });
+    setProfile({ ...profile, city: value });
   };
 
   const handleDistrictChange = (value: any) => {
@@ -216,7 +216,7 @@ export default function MeProfile() {
       (city: any) => city.Name === selectedCity
     );
     const selectedDistrictData = selectedCityData?.Districts.find(
-      (district: any) => district.Name === value
+      (province: any) => province.Name === value
     );
     if (selectedDistrictData) {
       setWards(selectedDistrictData.Wards);
@@ -402,12 +402,12 @@ export default function MeProfile() {
                       <div className="flex-1">
                         <FormField
                           control={form.control}
-                          name="provine"
+                          name="city"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Chọn tỉnh</FormLabel>
                               <Select
-                                value={profile.provine || ""}
+                                value={profile.city || ""}
                                 onValueChange={(e) => {
                                   field.onChange(e);
                                   handleCityChange(e);
@@ -438,7 +438,7 @@ export default function MeProfile() {
                       <div className="flex-1">
                         <FormField
                           control={form.control}
-                          name="district"
+                          name="province"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Chọn huyện</FormLabel>
@@ -454,7 +454,7 @@ export default function MeProfile() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectGroup>
-                                    {district.map((city: any) => (
+                                    {province.map((city: any) => (
                                       <SelectItem
                                         key={city.Id}
                                         id={city.Id}
@@ -474,7 +474,7 @@ export default function MeProfile() {
                       <div className="flex-1">
                         <FormField
                           control={form.control}
-                          name="ward"
+                          name="address"
                           render={({ field }) => (
                             <FormItem>
                               <FormLabel>Chọn xã</FormLabel>
@@ -490,7 +490,7 @@ export default function MeProfile() {
                                 </SelectTrigger>
                                 <SelectContent>
                                   <SelectGroup>
-                                    {ward.map((city: any) => (
+                                    {address.map((city: any) => (
                                       <SelectItem
                                         key={city.Id}
                                         value={city.Name}

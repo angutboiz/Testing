@@ -29,14 +29,16 @@ export class AuthService {
       sub: user.id,
       onboarding: user.onboarding,
     };
-    const access_token = await this.jwtService.sign(payload);
+    const access_token = await this.jwtService.sign(payload, {
+      secret: process.env.JWT_SECRET
+    });
 
     const expires = new Date(new Date().getTime() + 60 * 60 * 1000); // 3600 seconds × 1000 milliseconds
     response.cookie('Authentication', access_token, {
       expires: expires,
       httpOnly: true,
-      secure: true, // ensure the secure flag is set in production
-      sameSite: 'none',
+      secure: process.env.NODE_ENV === "PRODUCTION",
+      sameSite: process.env.NODE_ENV === "PRODUCTION" ? 'none' : 'lax',
     });
 
     return user;
@@ -45,7 +47,8 @@ export class AuthService {
   logout(request: Request, response: Response) {
     response.clearCookie('Authentication', {
       httpOnly: true,
-      secure: true,
+      secure: process.env.NODE_ENV === 'PRODUCTION',
+      sameSite: process.env.NODE_ENV === 'PRODUCTION' ? 'none' : 'lax',
       expires: new Date(0),
     });
     return { message: 'Logout successful' };

@@ -11,12 +11,13 @@ import { LocalAuthGuard } from './guards/local-auth.guards';
 import { AuthService } from './auth.service';
 import { Response } from 'express';
 import { JwtAuthGuard } from './guards/jwt-auth.guards';
+import {SkipThrottle, ThrottlerGuard} from '@nestjs/throttler';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @UseGuards(LocalAuthGuard)
+  @UseGuards(ThrottlerGuard,LocalAuthGuard)
   @Post('login')
   @HttpCode(200)
   async login(@Req() req: any, @Res({ passthrough: true }) response: Response) {

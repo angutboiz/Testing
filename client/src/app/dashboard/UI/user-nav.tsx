@@ -19,7 +19,7 @@ import { useRouter } from "next/navigation";
 export function UserNav(props: any) {
   const router = useRouter();
   const data = props.props;
-  const { setUser } = useStore();
+  const { setUser, profile } = useStore();
   async function handleLogout() {
     const response = await fetch(
       `${envConfig.NEXT_PUBLIC_API_ENDPOINT}/auth/logout`,
@@ -56,7 +56,14 @@ export function UserNav(props: any) {
         >
           <p>Xin chào {data.username}</p>
           <Avatar className="h-8 w-8">
-            <AvatarImage src="" alt="@shadcn" />
+            <AvatarImage
+              src={
+                profile && profile.avatar
+                  ? `${process.env.NEXT_PUBLIC_API_ENDPOINT}/${profile.avatar}`
+                  : ""
+              }
+              alt="@shadcn"
+            />
             <AvatarFallback>
               {data.username.slice(0, 2).toUpperCase()}
             </AvatarFallback>
